@@ -8,7 +8,7 @@ import hashlib
 import difflib
 import bisect
 
-persist_port = 9993                 # set port where persistence is listening
+persist_port = 7777                 # set port where persistence is listening
 persist_ip = '172.21.21.103'             # set ip of persistence
 
 
@@ -53,7 +53,7 @@ class Server :
 
 
 		s2 = socket.socket() 
-		s2.connect((host, 9992))
+		s2.connect((host, 7777))
 		message = input()
 		message = message.encode()
 		s2.send(message)

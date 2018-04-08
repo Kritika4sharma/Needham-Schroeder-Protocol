@@ -2,7 +2,7 @@ import socket
 import sqlite3 as db
 import hashlib     
 
-curr_port = 9993
+curr_port = 7774
 
 def start_listening():
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -22,7 +22,8 @@ def start_listening():
 		inp = input()
 		inp = inp.encode()
 		conn.send(inp)	
-
+		msg = conn.recv(1024)
+		
 if __name__ == "__main__":
 
 	start_listening()
