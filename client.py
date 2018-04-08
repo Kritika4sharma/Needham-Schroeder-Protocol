@@ -2,19 +2,14 @@ import math
 import socket, select, string, sys
 sys.path.insert(0, '../Find_IP/')
 sys.path.insert(0, '../Trie/')
-import netifaces as ni
 import socket                   # Import socket module                  # module to calculate system IP
 import time
-from thread import *
-from threading import Thread
 import hashlib
 import difflib
 import bisect
-import Queue
-import threading
 
 persist_port = 9993                 # set port where persistence is listening
-persist_ip = '172.21.21.101'             # set ip of persistence
+persist_ip = '172.21.21.103'             # set ip of persistence
 
 
 class Server :
@@ -31,19 +26,7 @@ class Server :
 		self.A_server = ""
 
 		connection_type = 1
-		print "GOING TO INITIALIZE IP ADDRESSSSSSSS"
-		while True :
-			try :
-				if connection_type == 1 :
-					self.ip = ni.ifaddresses('enp1s0')[2][0]['addr']
-				else :
-					self.ip = ni.ifaddresses('eth0')[2][0]['addr']
-				if self.ip == "" :
-					continue				
-			except :
-				self.ip = ni.ifaddresses('eth0')[2][0]['addr']
-			finally :
-				break
+		print ("GOING TO INITIALIZE IP ADDRESSSSSSSS")
 
 		self.socket_obj = {}
 
@@ -59,20 +42,24 @@ class Server :
 
 		s.connect((host, port))
 
-		message = raw_input()
+		message = input()
+		message = message.encode()
 		s.send(message)
 		msg = s.recv(1024)
-		print msg
+		msg = msg.decode()
+		print (msg)
 		s.close()
 		print('connection closed')
 
 
 		s2 = socket.socket() 
 		s2.connect((host, 9992))
-		message = raw_input()
+		message = input()
+		message = message.encode()
 		s2.send(message)
 		msg = s2.recv(1024)
-		print msg
+		msg = msg.decode()
+		print (msg)
 
 		s2.close()
 		print('connection closed')
