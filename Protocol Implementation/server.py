@@ -20,7 +20,7 @@ def pad(s):
 def start_listening():
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	host = socket.gethostname()               
-	my_ip = '172.21.21.103'
+	my_ip = '172.19.18.84'
 	s.bind((my_ip,curr_port))                      
 	s.listen(10)
 
@@ -54,7 +54,8 @@ def start_listening():
 		message = pad(message)
 		obj2  = AES.new(UserA['key'], AES.MODE_CBC, 'This is an IV456')
 		message = obj2.encrypt(message)
-		conn.send(message)
+		final_message = message + b'$$@@' + ciphertextycr
+		conn.send(final_message)
 
 if __name__ == "__main__":
 
