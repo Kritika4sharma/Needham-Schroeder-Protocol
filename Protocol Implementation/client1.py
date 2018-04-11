@@ -8,6 +8,7 @@ import hashlib
 import difflib
 import bisect
 from Crypto.Cipher import AES
+from Crypto.Cipher import ARC4
 from Crypto import Random
 import random
 
@@ -53,11 +54,33 @@ class Server :
 		nonceA = str(random.randint(1,1000000000))
 		message =  initiator + '-' + responder  + '-' + nonceA
 		message = message.encode()
+		print("Message Sent")
+		print(message)
 		s.send(message) 
-		msg = s.recv(4096)
-		
-		#print(msg)
-		key = 'This is a key123'
+
+
+
+		complete_ticket = s.recv(4096)
+		print("Complete Ticket Received to Alice")
+		print(complete_ticket)
+		key = 'Alice@123'
+		obj1 = ARC4.new(key)
+		alice_ticket = obj1.decrypt(complete_ticket)
+		tickets = alice_ticket.split(b'$$@@')
+		print("Decrypted Ticket by Alice")
+		print(tickets)
+		alice_ticket = tickets[0]
+		print("Alice Ticket")
+		print(alice_ticket)
+		bob_ticket = tickets[1]
+		key = 'Bob@123'
+		obj2 = ARC4.new(key)
+		bob_ticket = obj2.decrypt(bob_ticket)
+		print("Bob Ticket")
+		print(bob_ticket)
+
+
+		'''
 		obj = AES.new(key, AES.MODE_CBC, 'This is an IV456')
 
 		msg = msg.split(b'$$@@')
@@ -73,7 +96,7 @@ class Server :
 		key = 'This is a key456'
 		obj = AES.new(key, AES.MODE_CBC, 'This is an IV456')
 		print (obj.decrypt(bob_ticket))
-		
+		'''
 		s.close()
 		print('connection closed')
 
