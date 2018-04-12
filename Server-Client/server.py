@@ -5,42 +5,36 @@ import sys
 from threading import Thread
 import threading
 
-my_ip = '172.21.21.105'
+my_ip = '172.26.35.81'
 
 def client_thread(buff):
 	global BUFFER, count
-	print ("entereed here-----")
-
 	conn = buff[0]
-	self = buff[1]
-
 	msg = conn.recv(1024)
 	msg = msg.decode()
-	print (msg,"*************")
-	inp = input()
+	print (msg)
+	inp = "Hii client"
 	inp = inp.encode()
 	conn.send(inp)
+	print ("Secret key established for above client!")
 	conn.close()
 
 class Server :
 	def __init__(self, server_port) :
-		self.socket_obj = {}
-		self.ip = my_ip
+		self.HOST = my_ip
 		self.PORT = int(server_port)
-		print ("Ip of KDC server : ",my_ip)		
-		
-		server_port = int(server_port)
-		self.bind_and_serve()    
+		print ("I am the KDC server : ",my_ip)		
+		self.bind_and_serve()       # to listen to clients for establishing the secret key
 
 	def bind_and_serve(self):
-		print ("Inside server serve ..")
+		print ("Serving the clients now...")
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		s.bind((my_ip,self.PORT)) 
+		s.bind((self.HOST,self.PORT)) 
 		s.listen(10)
 
 		while True:
 			conn, addr = s.accept()
-			print ('Connected with ' + addr[0] + ':' + str(addr[1]))
+			print ('Connected with client = ' + addr[0] + ':' + str(addr[1]))
 			buff = [conn, self]
 			thread = threading.Thread(target=client_thread, args=(buff,))
 			thread.start()    
