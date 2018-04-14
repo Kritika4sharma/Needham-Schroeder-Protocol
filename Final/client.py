@@ -11,14 +11,12 @@ import bisect
 import threading
 import random
 
-NAME = input("Enter your name\n")
-
+NAME = input("Enter your name :\n")
 
 class Server :
 	def __init__(self,kdc_port,Alice_port,Bob_port,Cherry_port) :
-
-		self.MY_IP = '172.21.21.201'
-		self.kdc_ip = '172.21.21.201'
+		self.MY_IP = '127.0.0.1'
+		self.kdc_ip = '127.0.0.1'
 		self.socket_obj = {}
 		self.HOST = self.MY_IP
 		self.kdc_port = int(kdc_port)
@@ -39,32 +37,29 @@ class Server :
 		conn = buff[0]
 		msg = conn.recv(1024)
 		print (msg)
-
-		key = input("Enter Your key for Decryption")
+		key = input("Enter Your key for Decryption:\n")
 		obj1 = ARC4.new(key)
 		msg = obj1.decrypt(msg)
-		print("Your Decrypted Ticket")
-		print(msg)
+		print("Your Decrypted Ticket : ",msg.decode())
 		
 		keys = msg.split(b'-')
 		session_key = keys[1]
 		nonceB = random.randint(1,10000000)
 		nonceB = str(nonceB)
 		nonceB = nonceB.encode()
-		print(nonceB)
+		print("Number sent to initiator = ",nonceB.decode())
 		obj2 = ARC4.new(session_key)
 		nonceB = obj2.encrypt(nonceB)
 		conn.send(nonceB)
 		msg = conn.recv(1024)
 		nonceB = obj2.decrypt(msg)
-		print ("Number is : ",nonceB)
-		print ("Two clients chatting")
+		print ("Number received from initiator = ",nonceB.decode())
+		print ("Two clients chatting...")
 		conn.close()
 
 	def checking(self):
 		while(True):
-			print ("Want to talk to someone??")
-			inp = input("yes/no??")
+			inp = input("Want to talk to someone?? - yes/no\n")
 			if(inp=="yes"):
 				self.talk_to_someone(self.kdc_port)
 
@@ -77,7 +72,7 @@ class Server :
 		msg = s.recv(1024)
 		obj1 = ARC4.new(session_key)
 		msg = obj1.decrypt(msg)
-		print("Decrypted Nonce : ",msg)
+		print("Decrypted Nonce : ",msg.decode())
 		msg = msg.decode()
 		msg = int(msg)
 		msg = msg -1
@@ -91,11 +86,8 @@ class Server :
 		port = self.kdc_port 
 		s = socket.socket()             # Create a socket object
 		s.connect((host, port))
-		print ("Give input in format : Initiator-Responder")
-		inp = input()
-		inp = inp.split('-')
-		initiator = inp[0]
-		responder = inp[1]
+		initiator = NAME
+		responder = input("To whom you want to communicate?\n")
 		self.c2_port = int(self.Alice_port)
 		if(responder=="Bob"):
 			self.c2_port = int(self.Bob_port)
@@ -103,28 +95,25 @@ class Server :
 			self.c2_port = int(self.Cherry_port)
 		nonceA = str(random.randint(1,1000000000))
 		message =  initiator + '-' + responder  + '-' + nonceA
+		print("Sending ",initiator," ",responder," ",nonceA," to kdc")
 		message = message.encode()
-		print("Message Sent to kdc")
-		print(message)
 		s.send(message) 
 
 		complete_ticket = s.recv(4096)
-		print("Complete Ticket Received to ",initiator)
+		print("Complete Ticket Received to ",initiator," :")
 		print(complete_ticket)
-		key = input("Enter your key for decryption of ticket :")
+		key = input("Enter your key for decryption of ticket :\n")
 		obj1 = ARC4.new(key)
 		alice_ticket = obj1.decrypt(complete_ticket)
 		tickets = alice_ticket.split(b'$$@@')
 		print("Decrypted Ticket by ",initiator)
 		print(tickets)
 		alice_ticket = tickets[0]
-		print("Ticket of ",initiator)
-		print(alice_ticket)
+		print("Ticket of ",initiator," = ",alice_ticket.decode())
 		alice_ticket = alice_ticket.split(b'-')
 		session_key = alice_ticket[2]
 		bob_ticket_original = tickets[1]
-		print("Ticket of ",responder)
-		print(bob_ticket_original)
+		print("Ticket of ",responder," = ",bob_ticket_original)
 		s.close()
 		print('connection closed')
 
@@ -134,7 +123,7 @@ class Server :
 		Thread(target=self.checking, args=()).start()     
 		self.socket_obj.update({'s' : socket.socket(socket.AF_INET, socket.SOCK_STREAM)})  
 																						
-		print ("Listening to other peers:")
+		# print ("Listening to other peers...")
 		self.socket_obj['s'].bind((self.HOST, self.peer_port))
 		self.socket_obj['s'].listen(10)          
 		while True:

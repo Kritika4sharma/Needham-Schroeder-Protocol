@@ -8,13 +8,12 @@ import random
 from Crypto.Cipher import AES  
 from Crypto.Cipher import ARC4
 
-my_ip = '172.21.21.201'
+my_ip = '127.0.0.1'
 
 users = []
 UserA = {'id': 'A' , 'name' : 'Alice','key':'Alice@123'}
 UserB = {'id': 'B' , 'name' : 'Bob','key':'Bob@123'}
 UserC = {'id': 'C' , 'name' : 'Cherry','key':'Cherry@123'}
-
 
 users.append(UserA)
 users.append(UserB)
