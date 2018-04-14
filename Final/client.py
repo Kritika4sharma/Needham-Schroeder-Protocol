@@ -10,15 +10,37 @@ from Crypto.Cipher import ARC4
 import bisect
 import threading
 import random
+import timeit
 
+print('''
+#   #                    #  #                            ###          #                               #               
+#   #                    #  #                           #   #         #                               #               
+##  #   ###    ###    ## #  # ##    ###   ## #          #       ###   # ##   # ##    ###    ###    ## #   ###   # ##  
+# # #  #   #  #   #  #  ##  ##  #      #  # # #  #####   ###   #   #  ##  #  ##  #  #   #  #   #  #  ##  #   #  ##  # 
+#  ##  #####  #####  #   #  #   #   ####  # # #             #  #      #   #  #      #   #  #####  #   #  #####  #     
+#   #  #      #      #  ##  #   #  #   #  # # #         #   #  #   #  #   #  #      #   #  #      #  ##  #      #     
+#   #   ###    ###    ## #  #   #   ####  #   #          ###    ###   #   #  #       ###    ###    ## #   ###   #     
+''')
+
+print(''' 
+				 ####                  #                           ##   
+				 #   #                 #                            #   
+				 #   #  # ##    ###   ####    ###    ###    ###     #   
+				 ####   ##  #  #   #   #     #   #  #   #  #   #    #   
+				 #      #      #   #   #     #   #  #      #   #    #   
+				 #      #      #   #   #  #  #   #  #   #  #   #    #   
+				 #      #       ###     ##    ###    ###    ###    ###  
+''')
+start = 0
+end = 0
 NAME = input("Enter your name\n")
 
 
 class Server :
 	def __init__(self,kdc_port,Alice_port,Bob_port,Cherry_port) :
 
-		self.MY_IP = '172.21.21.201'
-		self.kdc_ip = '172.21.21.201'
+		self.MY_IP = '172.21.21.101'
+		self.kdc_ip = '172.21.21.101'
 		self.socket_obj = {}
 		self.HOST = self.MY_IP
 		self.kdc_port = int(kdc_port)
@@ -66,6 +88,8 @@ class Server :
 			print ("Want to talk to someone??")
 			inp = input("yes/no??")
 			if(inp=="yes"):
+				global start
+				start = timeit.default_timer()
 				self.talk_to_someone(self.kdc_port)
 
 	def chatting(self,bob_ticket,session_key):
@@ -84,6 +108,10 @@ class Server :
 		msg = str(msg)
 		msg = msg.encode()
 		nonceA = obj1.encrypt(msg)
+		global end
+		end = timeit.default_timer()
+		print("Latency b/w Clients")
+		print(end - start)
 		s.send(nonceA)
 
 	def talk_to_someone(self,kdc_port):
@@ -111,6 +139,10 @@ class Server :
 		complete_ticket = s.recv(4096)
 		print("Complete Ticket Received to ",initiator)
 		print(complete_ticket)
+		global end
+		end = timeit.default_timer()
+		print("Latency b/w " + initiator + "and KDC" )
+		print(end - start)
 		key = input("Enter your key for decryption of ticket :")
 		obj1 = ARC4.new(key)
 		alice_ticket = obj1.decrypt(complete_ticket)
@@ -127,7 +159,8 @@ class Server :
 		print(bob_ticket_original)
 		s.close()
 		print('connection closed')
-
+		global start 
+		start = timeit.default_timer()
 		self.chatting(bob_ticket_original,session_key)
 
 	def bind_and_serve(self):

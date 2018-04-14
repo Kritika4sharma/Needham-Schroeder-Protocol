@@ -8,7 +8,7 @@ import random
 from Crypto.Cipher import AES  
 from Crypto.Cipher import ARC4
 
-my_ip = '172.21.21.201'
+my_ip = '172.21.21.101'
 
 users = []
 UserA = {'id': 'A' , 'name' : 'Alice','key':'Alice@123'}
@@ -66,7 +66,28 @@ class Server :
 	def __init__(self, server_port) :
 		self.HOST = my_ip
 		self.PORT = int(server_port)
-		print ("I am the KDC server : ",my_ip)		
+		
+		print('''
+		 #   #                    #  #                            ###          #                               #               
+		 #   #                    #  #                           #   #         #                               #               
+		 ##  #   ###    ###    ## #  # ##    ###   ## #          #       ###   # ##   # ##    ###    ###    ## #   ###   # ##  
+		 # # #  #   #  #   #  #  ##  ##  #      #  # # #  #####   ###   #   #  ##  #  ##  #  #   #  #   #  #  ##  #   #  ##  # 
+		 #  ##  #####  #####  #   #  #   #   ####  # # #             #  #      #   #  #      #   #  #####  #   #  #####  #     
+		 #   #  #      #      #  ##  #   #  #   #  # # #         #   #  #   #  #   #  #      #   #  #      #  ##  #      #     
+		 #   #   ###    ###    ## #  #   #   ####  #   #          ###    ###   #   #  #       ###    ###    ## #   ###   #     
+		''')
+
+		print(''' 
+						 ####                  #                           ##   
+						 #   #                 #                            #   
+						 #   #  # ##    ###   ####    ###    ###    ###     #   
+						 ####   ##  #  #   #   #     #   #  #   #  #   #    #   
+						 #      #      #   #   #     #   #  #      #   #    #   
+						 #      #      #   #   #  #  #   #  #   #  #   #    #   
+						 #      #       ###     ##    ###    ###    ###    ###  
+		 ''')
+
+		print ("I am the KDC server : ",my_ip)
 		self.bind_and_serve()       # to listen to clients for establishing the secret key
 
 	def bind_and_serve(self):
