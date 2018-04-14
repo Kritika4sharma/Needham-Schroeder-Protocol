@@ -7,8 +7,10 @@ import threading
 import random
 from Crypto.Cipher import AES  
 from Crypto.Cipher import ARC4
+import IP
 
-my_ip = '127.0.0.1'
+ip_ob = IP.IP()                           # Get the ip of the system (machine_ip for persistence)
+my_ip = ip_ob.get_my_ip()
 
 users = []
 UserA = {'id': 'A' , 'name' : 'Alice','key':'Alice@123'}
@@ -65,28 +67,7 @@ class Server :
 	def __init__(self, server_port) :
 		self.HOST = my_ip
 		self.PORT = int(server_port)
-		
-		print('''
-		 #   #                    #  #                            ###          #                               #               
-		 #   #                    #  #                           #   #         #                               #               
-		 ##  #   ###    ###    ## #  # ##    ###   ## #          #       ###   # ##   # ##    ###    ###    ## #   ###   # ##  
-		 # # #  #   #  #   #  #  ##  ##  #      #  # # #  #####   ###   #   #  ##  #  ##  #  #   #  #   #  #  ##  #   #  ##  # 
-		 #  ##  #####  #####  #   #  #   #   ####  # # #             #  #      #   #  #      #   #  #####  #   #  #####  #     
-		 #   #  #      #      #  ##  #   #  #   #  # # #         #   #  #   #  #   #  #      #   #  #      #  ##  #      #     
-		 #   #   ###    ###    ## #  #   #   ####  #   #          ###    ###   #   #  #       ###    ###    ## #   ###   #     
-		''')
-
-		print(''' 
-						 ####                  #                           ##   
-						 #   #                 #                            #   
-						 #   #  # ##    ###   ####    ###    ###    ###     #   
-						 ####   ##  #  #   #   #     #   #  #   #  #   #    #   
-						 #      #      #   #   #     #   #  #      #   #    #   
-						 #      #      #   #   #  #  #   #  #   #  #   #    #   
-						 #      #       ###     ##    ###    ###    ###    ###  
-		 ''')
-
-		print ("I am the KDC server : ",my_ip)
+		print ("I am the KDC server : ",my_ip)		
 		self.bind_and_serve()       # to listen to clients for establishing the secret key
 
 	def bind_and_serve(self):
