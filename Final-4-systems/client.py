@@ -15,8 +15,8 @@ NAME = input("Enter your name :\n")
 
 class Server :
 	def __init__(self,kdc_port,client_port,Alice_ip,Bob_ip,Cherry_ip) :
-		self.MY_IP = '127.0.0.1'
-		self.kdc_ip = '127.0.0.1'
+		self.MY_IP = '172.21.21.206'
+		self.kdc_ip = '172.21.21.105'
 		self.socket_obj = {}
 		self.HOST = self.MY_IP
 		self.kdc_port = int(kdc_port)
@@ -67,7 +67,7 @@ class Server :
 				self.talk_to_someone(self.kdc_port)
 
 	def chatting(self,bob_ticket,session_key,responder_ip):
-		host = self.responder_ip
+		host = responder_ip
 		port = self.c2_port
 		s = socket.socket()             # Create a socket object
 		s.connect((host, port))
@@ -142,7 +142,7 @@ class Server :
         	
 
 def main() :
-	server_obj = Server(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4])
+	server_obj = Server(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4],sys.argv[5])
 
 
 if __name__ == "__main__" :
