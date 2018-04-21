@@ -10,9 +10,9 @@ from Crypto.Cipher import ARC4
 import bisect
 import threading
 import random
+import timeit
 
 NAME = input("Enter your name :\n")
-
 print('''
 #   #                    #  #                            ###          #                               #               
 #   #                    #  #                           #   #         #                               #               
@@ -32,25 +32,24 @@ print('''
 				 #      #      #   #   #  #  #   #  #   #  #   #    #   
 				 #      #       ###     ##    ###    ###    ###    ###  
 ''')
+start = 0
+end = 0
 
 class Server :
-	def __init__(self,kdc_port,client_port,Alice_ip,Bob_ip,Cherry_ip) :
+	def __init__(self,kdc_port,Alice_port,Bob_port,Cherry_port) :
 		self.MY_IP = '127.0.0.1'
 		self.kdc_ip = '127.0.0.1'
 		self.socket_obj = {}
 		self.HOST = self.MY_IP
 		self.kdc_port = int(kdc_port)
-		self.Alice_port = client_port
-		self.Bob_port = client_port
-		self.Cherry_port = client_port
-		self.peer_port = int(client_port)
-		self.Cherry_ip = Cherry_ip
-		self.Alice_ip = Alice_ip
-		self.Bob_ip = Bob_ip
+		self.Alice_port = Alice_port
+		self.Bob_port = Bob_port
+		self.Cherry_port = Cherry_port
+		self.peer_port = int(Alice_port)
 		if(NAME=="Bob"):
-			self.peer_port = int(client_port)
+			self.peer_port = int(Bob_port)
 		if(NAME=="Cherry"):
-			self.peer_port = int(client_port)
+			self.peer_port = int(Cherry_port)
 		self.bind_and_serve()           
 		print ('Super Outside')
 		
@@ -66,6 +65,7 @@ class Server :
 		print("Your Decrypted Ticket : ",msg.decode())
 		
 		keys = msg.split(b'-')
+		initiator = keys[0]
 		session_key = keys[1]
 		nonceB = random.randint(1,10000000)
 		nonceB = str(nonceB)
@@ -78,16 +78,35 @@ class Server :
 		nonceB = obj2.decrypt(msg)
 		print ("Number received from initiator = ",nonceB.decode())
 		print ("Two clients chatting...")
+		initiator = initiator.decode()
+
+		while(True):
+			msg = conn.recv(1024)
+			msg = obj2.decrypt(msg)
+			msg = msg.decode()
+			if(msg=="exit"):
+				print ("Chat ended!!!")
+				break
+			print ("Message received from ",initiator," : ",msg)
+			print ("Enter you message for ", initiator)
+			msg = input()
+			msg = msg.encode()
+			msg = obj2.encrypt(msg)
+			conn.send(msg)
+			print ("message sent to ",initiator)
+
 		conn.close()
 
 	def checking(self):
 		while(True):
 			inp = input("Want to talk to someone?? - yes/no\n")
 			if(inp=="yes"):
+				global start
+				start = timeit.default_timer()
 				self.talk_to_someone(self.kdc_port)
 
-	def chatting(self,bob_ticket,session_key,responder_ip):
-		host = responder_ip
+	def chatting(self,bob_ticket,session_key,responder):
+		host = self.MY_IP
 		port = self.c2_port
 		s = socket.socket()             # Create a socket object
 		s.connect((host, port))
@@ -102,7 +121,27 @@ class Server :
 		msg = str(msg)
 		msg = msg.encode()
 		nonceA = obj1.encrypt(msg)
+		global end
+		end = timeit.default_timer()
+		print("Latency b/w Clients")
+		print(end - start)
 		s.send(nonceA)
+
+		while(True):
+			print ("Enter your message for ",responder," or type exit")
+			msg1 = input()
+			msg = msg1.encode()
+			msg = obj1.encrypt(msg)
+			s.send(msg)
+			if(msg1=="exit"):
+				print ("Chat ended!!!")
+				break
+			print ("message sent to ",responder)
+			msg = s.recv(1024)
+			msg = obj1.decrypt(msg)
+			msg = msg.decode()
+			print ("Message received from ",responder," : ",msg)
+		s.close()
 
 	def talk_to_someone(self,kdc_port):
 		host = self.kdc_ip
@@ -125,6 +164,10 @@ class Server :
 		complete_ticket = s.recv(4096)
 		print("Complete Ticket Received to ",initiator," :")
 		print(complete_ticket)
+		global end
+		end = timeit.default_timer()
+		print("Latency b/w " + initiator + "and KDC" )
+		print(end - start)
 		key = input("Enter your key for decryption of ticket :\n")
 		obj1 = ARC4.new(key)
 		alice_ticket = obj1.decrypt(complete_ticket)
@@ -138,14 +181,10 @@ class Server :
 		bob_ticket_original = tickets[1]
 		print("Ticket of ",responder," = ",bob_ticket_original)
 		s.close()
-		print('connection closed')
-
-		responder_ip = self.Alice_ip
-		if(responder=="Cherry"):
-			responder_ip = self.Cherry_ip
-		if(responder=="Bob"):
-			responder_ip = self.Bob_ip
-		self.chatting(bob_ticket_original,session_key,responder_ip)
+		print('connection with kdc closed')
+		global start 
+		start = timeit.default_timer()
+		self.chatting(bob_ticket_original,session_key,responder)
 
 	def bind_and_serve(self):
 		Thread(target=self.checking, args=()).start()     
@@ -162,7 +201,7 @@ class Server :
         	
 
 def main() :
-	server_obj = Server(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4],sys.argv[5])
+	server_obj = Server(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4])
 
 
 if __name__ == "__main__" :
